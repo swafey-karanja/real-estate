@@ -5,11 +5,11 @@ import { fetchAuthSession, getCurrentUser } from "aws-amplify/auth";
 export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
-    prepareHeaders: async(headers) => {
+    prepareHeaders: async (headers) => {
       const session = fetchAuthSession();
       const { idToken } = session.token ?? {};
-      if(idToken) {
-        headers.set("Authorization", `Bearer ${idToken}`)
+      if (idToken) {
+        headers.set("Authorization", `Bearer ${idToken}`);
       }
       return headers;
     },
@@ -25,8 +25,10 @@ export const api = createApi({
           const user = await getCurrentUser();
           const userRole = idToken?.payload["custom:role"] as string;
 
-          const endPoint = 
-            userRole === "manager" ? `/managers/${user.userId}` : `/tenants/${user.userId}`;
+          const endPoint =
+            userRole === "manager"
+              ? `/managers/${user.userId}`
+              : `/tenants/${user.userId}`;
 
           let userDetailsResponse = await fetchWithBQ(endPoint);
 
@@ -34,16 +36,16 @@ export const api = createApi({
 
           return {
             data: {
-              cognitoInfo: {...user},
+              cognitoInfo: { ...user },
               userInfo: userDetailsResponse.data as Tenant | Manager,
-              userRole
-            }
-          }
+              userRole,
+            },
+          };
         } catch (error: any) {
-          return{error: error.message || "Could not fetch user data"}
+          return { error: error.message || "Could not fetch user data" };
         }
-      }
-    })
+      },
+    }),
   }),
 });
 

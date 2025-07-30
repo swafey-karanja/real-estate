@@ -58,7 +58,6 @@ export const withToast = async <T>(
 
 export const createNewUserInDatabase = async (
   user: any,
-  idToken: any,
   userRole: string,
   fetchWithBQ: any
 ) => {
@@ -71,7 +70,7 @@ export const createNewUserInDatabase = async (
     body: {
       cognitoId: user.userId,
       name: user.username,
-      email: idToken?.payload?.email || "",
+      email: user.signInDetails.loginId || "",
       phoneNumber: "",
     },
   });

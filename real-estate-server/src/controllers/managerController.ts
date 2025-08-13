@@ -40,7 +40,7 @@ export const createManager = async (
       },
     });
 
-    res.json(manager);
+    res.status(201).json(manager);
   } catch (error: any) {
     res
       .status(500)

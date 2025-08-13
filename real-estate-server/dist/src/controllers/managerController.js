@@ -43,7 +43,7 @@ const createManager = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 phoneNumber,
             },
         });
-        res.json(manager);
+        res.status(201).json(manager);
     }
     catch (error) {
         res

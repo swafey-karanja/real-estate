@@ -28,7 +28,7 @@ export const authMiddleware = (allowedRoles: string[]) => {
 
     try {
       const decoded = jwt.decode(token) as DecodedToken;
-      const userRole = decoded["custom: role"] || "";
+      const userRole = decoded["custom:role"] || "";
       req.user = {
         id: decoded.sub,
         role: userRole,

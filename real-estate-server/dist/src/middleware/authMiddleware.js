@@ -15,7 +15,7 @@ const authMiddleware = (allowedRoles) => {
         }
         try {
             const decoded = jsonwebtoken_1.default.decode(token);
-            const userRole = decoded["custom: role"] || "";
+            const userRole = decoded["custom:role"] || "";
             req.user = {
                 id: decoded.sub,
                 role: userRole,

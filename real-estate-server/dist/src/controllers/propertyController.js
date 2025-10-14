@@ -8,11 +8,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createProperty = exports.getPropertyById = exports.getProperties = void 0;
 const client_1 = require("@prisma/client");
 const wkt_1 = require("@terraformer/wkt");
+const client_s3_1 = require("@aws-sdk/client-s3");
+const lib_storage_1 = require("@aws-sdk/lib-storage");
+const axios_1 = __importDefault(require("axios"));
 const prisma = new client_1.PrismaClient();
+const s3Client = new client_s3_1.S3Client({
+    region: process.env.AWS_REGION,
+});
 const getProperties = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { favoriteIds, priceMin, priceMax, beds, baths, propertyType, squareFeetMin, squareFeetMax, amenities, availableFrom, latitude, longitude, } = req.query;
@@ -121,9 +141,66 @@ const getPropertyById = (req, res) => __awaiter(void 0, void 0, void 0, function
     catch (error) {
         res
             .status(500)
-            .json({ message: `Error retrieving properties: ${error.message}` });
+            .json({ message: `Error retrieving property: ${error.message}` });
     }
 });
 exports.getPropertyById = getPropertyById;
-const createProperty = () => __awaiter(void 0, void 0, void 0, function* () { });
+const createProperty = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    try {
+        const files = req.files;
+        const _c = req.body, { address, city, state, country, postalCode, managerCognitoId } = _c, propertyData = __rest(_c, ["address", "city", "state", "country", "postalCode", "managerCognitoId"]);
+        const photoUrls = yield Promise.all(files.map((file) => __awaiter(void 0, void 0, void 0, function* () {
+            const uploadParams = {
+                Bucket: process.env.AWS_S3_BUCKET_NAME,
+                Key: `properties/${Date.now()}_${file.originalname}`,
+                Body: file.buffer,
+                ContentType: file.mimetype,
+            };
+            const uploadResult = yield new lib_storage_1.Upload({
+                client: s3Client,
+                params: uploadParams,
+            }).done();
+            return uploadResult.Location;
+        })));
+        const geoCodingUrl = `https://nominatim.openstreetmap.org/search?${new URLSearchParams({
+            street: address,
+            city,
+            country,
+            postalcode: postalCode,
+            format: "json",
+            limit: "1",
+        }).toString()}`;
+        const geoCodingResponse = yield axios_1.default.get(geoCodingUrl, {
+            headers: { "User-Agent": "RealEstateApp (myemail@gmail.com)" },
+        });
+        const [longitude, latitude] = ((_a = geoCodingResponse.data[0]) === null || _a === void 0 ? void 0 : _a.long) && ((_b = geoCodingResponse.data[0]) === null || _b === void 0 ? void 0 : _b.lat)
+            ? [
+                parseFloat(geoCodingResponse.data[0].lon),
+                parseFloat(geoCodingResponse.data[0].lat),
+            ]
+            : [0, 0];
+        // create location query
+        const [location] = yield prisma.$queryRaw `
+      INSERT INTO "Location" (address, city, state, country, "postalCode", coordinates)
+      VALUES (${address}, ${city}, ${state}, ${country}, ${postalCode}, ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326))
+      RETURNING id, address, city, state, country, "postalCode", ST_AsText(coordinates) as coordinates;
+    `;
+        //create property
+        const newProperty = yield prisma.property.create({
+            data: Object.assign(Object.assign({}, propertyData), { photoUrls, locationId: location.id, managerCognitoId, amenities: typeof propertyData.amenities === "string"
+                    ? propertyData.amenities.split(",")
+                    : [], highlights: typeof propertyData.highlights === "string"
+                    ? propertyData.highlights.split(",")
+                    : [], isPetsAllowed: propertyData.isPetsAllowed === "true", isParkingIncluded: propertyData.isParkingIncluded === "true", pricePerMonth: parseFloat(propertyData.pricePerMonth), securityDeposit: parseFloat(propertyData.securityDeposit), applicationFee: parseFloat(propertyData.applicationFee), beds: parseInt(propertyData.beds), baths: parseFloat(propertyData.baths), squareFeet: parseInt(propertyData.squareFeet) }),
+            include: { location: true, manager: true },
+        });
+        res.status(201).json(newProperty);
+    }
+    catch (error) {
+        res
+            .status(500)
+            .json({ message: `Error creating property: ${error.message}` });
+    }
+});
 exports.createProperty = createProperty;

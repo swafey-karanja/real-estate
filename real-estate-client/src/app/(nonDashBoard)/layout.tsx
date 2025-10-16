@@ -32,7 +32,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   if (authLoading || isLoading) return <>Loading ...</>;
 
   return (
-    <div className="fixed left-0 right-0 h-full w-full">
+    <div className="h-full w-full">
       <Navbar />
       <main
         className={`h-full flex w-full flex-col`}

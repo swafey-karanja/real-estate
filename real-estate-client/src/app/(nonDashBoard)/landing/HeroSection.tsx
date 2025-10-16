@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import Image from "next/image";
 import React from "react";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 
 const HeroSection = () => {
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative h-screen">
       <Image
         src="/landing-splash.jpg"
         alt="Rentiful platform background"
@@ -28,12 +28,13 @@ const HeroSection = () => {
             Start your journey to finding the perfect place to call home
           </h1>
           <p className="text-xl text-white mb-8">
-            Explore our wide range of rental properties tailored to meet your lifestyle and needs!
+            Explore our wide range of rental properties tailored to meet your
+            lifestyle and needs!
           </p>
           <div className="flex justify-center">
             <Input
               type="text"
-              value='Search query'
+              value="Search query"
               onChange={() => {}}
               placeholder="search by city, neighbourhood or address"
               className="w-full max-w-lg rounded-none rounded-l-xl border-none bg-white h-12"

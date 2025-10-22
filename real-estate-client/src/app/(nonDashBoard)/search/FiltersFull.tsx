@@ -54,6 +54,15 @@ const FiltersFull = () => {
     updateURL(initialState.filters);
   };
 
+  const handleAmenityChange = (amenity: AmenityEnum) => {
+    setLocalFilters((prev) => ({
+      ...prev,
+      amenities: prev.amenities.includes(amenity)
+        ? prev.amenities.filter((a) => a !== amenity)
+        : [...prev.amenities, amenity],
+    }));
+  };
+
   if (!isFiltersFullOpen) return null;
 
   return (
@@ -215,7 +224,7 @@ const FiltersFull = () => {
                     ? "border-black"
                     : "border-gray-200"
                 )}
-                // onClick={() => handleAmenityChange(amenity as AmenityEnum)}
+                onClick={() => handleAmenityChange(amenity as AmenityEnum)}
               >
                 <Icon className="w-5 h-5 hover:cursor-pointer" />
                 <Label className="hover:cursor-pointer">

@@ -26,7 +26,7 @@ const Map = () => {
 
     const map = new mapboxgl.Map({
       container: mapContainerRef.current!,
-      style: "mapbox://styles/swafey/cmh4j7eyv007x01s7b477f4g3",
+      style: "mapbox://styles/swafey/cmh4jao0m002501s4hum72pvm",
       center: filters.coordinates || [1.2921, 36.8219],
       zoom: 9,
     });
@@ -42,7 +42,7 @@ const Map = () => {
     resizeMap();
 
     return () => map.remove();
-  });
+  }, [isLoading, isError, properties, filters.coordinates]);
 
   if (isLoading) return <>Loading...</>;
   if (isError || !properties) return <div>Failed to fetch properties</div>;

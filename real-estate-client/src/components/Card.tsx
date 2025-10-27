@@ -22,6 +22,7 @@ const Card = ({
             src={imgSrc}
             alt={property.name}
             fill
+            unoptimized // 👈 disables optimization
             className="object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             onError={() => setImgSrc("/placeholder.jpg")}
@@ -29,12 +30,12 @@ const Card = ({
         </div>
         <div className="absolute bottom-4 left-4 flex gap-2">
           {property.isPetsAllowed && (
-            <span className="bg-white/80 text-black text-xs font-semibold px-2 py-1 rounded-full">
+            <span className="bg-green-500/80 text-white text-xs font-semibold px-2 py-1 rounded-full items-center justify-center">
               Pets Allowed
             </span>
           )}
           {property.isParkingIncluded && (
-            <span className="bg-white/80 text-black text-xs font-semibold px-2 py-1 rounded-full">
+            <span className="bg-green-500/80 text-white text-xs font-semibold px-2 py-1 rounded-full">
               Parking Included
             </span>
           )}

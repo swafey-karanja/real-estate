@@ -9,7 +9,7 @@ import React from "react";
 
 const ManagerSettings = () => {
   const { data: authUser, isLoading } = useGetAuthUserQuery();
-  //   console.log("authUser", authUser);
+  console.log("authUser", authUser);
   const [updateTenant] = useUpdateManagerSettingsMutation();
 
   if (isLoading) return <>Loading ...</>;

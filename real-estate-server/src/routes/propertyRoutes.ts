@@ -2,7 +2,7 @@ import express from "express";
 import { authMiddleware } from "../middleware/authMiddleware";
 import {
   getProperties,
-  getPropertyById,
+  getProperty,
   createProperty,
 } from "../controllers/propertyController";
 import multer from "multer";
@@ -13,7 +13,7 @@ const upload = multer({ storage: storage });
 const router = express.Router();
 
 router.get("/", getProperties);
-router.get("/:id", getPropertyById);
+router.get("/:id", getProperty);
 router.post(
   "/",
   authMiddleware(["manager"]),

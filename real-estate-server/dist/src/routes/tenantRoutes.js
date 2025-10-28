@@ -9,7 +9,7 @@ const router = express_1.default.Router();
 router.get("/:cognitoId", tenantControllers_1.getTenant);
 router.put("/:cognitoId", tenantControllers_1.updateTenant);
 router.post("/", tenantControllers_1.createTenant);
-router.get("/:cognitoId/properties", tenantControllers_1.getTenantProperties);
+router.get("/:cognitoId/current-properties", tenantControllers_1.getTenantProperties);
 router.post("/:cognitoId/favorites/:propertyId", tenantControllers_1.addToFavoriteProperties);
 router.delete("/:cognitoId/favorites/:propertyId", tenantControllers_1.removeFromFavoriteProperties);
 exports.default = router;

@@ -13,7 +13,7 @@ const router = express.Router();
 router.get("/:cognitoId", getTenant);
 router.put("/:cognitoId", updateTenant);
 router.post("/", createTenant);
-router.get("/:cognitoId/properties", getTenantProperties);
+router.get("/:cognitoId/current-properties", getTenantProperties);
 router.post("/:cognitoId/favorites/:propertyId", addToFavoriteProperties);
 router.delete(
   "/:cognitoId/favorites/:propertyId",

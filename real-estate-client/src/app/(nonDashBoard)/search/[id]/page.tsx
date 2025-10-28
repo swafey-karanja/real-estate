@@ -2,12 +2,18 @@
 
 import { useGetAuthUserQuery } from "@/state/api";
 import { useParams } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import ImagePreviews from "./ImagePreviews";
+import PropertyOverview from "./PropertyOverview";
+import PropertyDetails from "./PropertyDetails";
+import PropertyLocation from "./PropertyLocation";
+import ApplicationModal from "./ApplicationModal";
+import ContactWidget from "./ContactWidget";
 
 const SingleListing = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { id } = useParams();
-  const propertyid = Number(id);
+  const propertyId = Number(id);
 
   const { data: authUser } = useGetAuthUserQuery();
 

@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createProperty = exports.getPropertyById = exports.getProperties = void 0;
+exports.createProperty = exports.getProperty = exports.getProperties = void 0;
 const client_1 = require("@prisma/client");
 const wkt_1 = require("@terraformer/wkt");
 const client_s3_1 = require("@aws-sdk/client-s3");
@@ -120,31 +120,35 @@ const getProperties = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.getProperties = getProperties;
-const getPropertyById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getProperty = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
         const { id } = req.params;
         const property = yield prisma.property.findUnique({
             where: { id: Number(id) },
-            include: { location: true },
+            include: {
+                location: true,
+            },
         });
         if (property) {
-            const coordinates = yield prisma.$queryRaw `
-        SELECT ST_AsText(location.coordinates) as coordinates from "Location" where id = ${property.location.id}`;
+            const coordinates = yield prisma.$queryRaw `SELECT ST_asText(coordinates) as coordinates from "Location" where id = ${property.location.id}`;
             const geoJSON = (0, wkt_1.wktToGeoJSON)(((_a = coordinates[0]) === null || _a === void 0 ? void 0 : _a.coordinates) || "");
             const longitude = geoJSON.coordinates[0];
             const latitude = geoJSON.coordinates[1];
-            const propertyWithCoordinates = Object.assign(Object.assign({}, property), { location: Object.assign(Object.assign({}, property.location), { coordinates: { latitude, longitude } }) });
+            const propertyWithCoordinates = Object.assign(Object.assign({}, property), { location: Object.assign(Object.assign({}, property.location), { coordinates: {
+                        longitude,
+                        latitude,
+                    } }) });
             res.json(propertyWithCoordinates);
         }
     }
-    catch (error) {
+    catch (err) {
         res
             .status(500)
-            .json({ message: `Error retrieving property: ${error.message}` });
+            .json({ message: `Error retrieving property: ${err.message}` });
     }
 });
-exports.getPropertyById = getPropertyById;
+exports.getProperty = getProperty;
 const createProperty = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {

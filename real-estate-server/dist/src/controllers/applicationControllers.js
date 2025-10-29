@@ -18,16 +18,21 @@ const listApplications = (req, res) => __awaiter(void 0, void 0, void 0, functio
         let whereClause = {};
         if (userId && userType) {
             if (userType === "tenant") {
-                whereClause = { tenantId: String(userId) };
+                whereClause = { tenantCognitoId: String(userId) };
             }
             else if (userType === "manager") {
-                whereClause = { property: { managerId: String(userId) } };
+                whereClause = { property: { managerCognitoId: String(userId) } };
             }
         }
         const applications = yield prisma.application.findMany({
             where: whereClause,
             include: {
-                property: { include: { location: true, manager: true } },
+                property: {
+                    include: {
+                        location: true,
+                        manager: true,
+                    },
+                },
                 tenant: true,
             },
         });

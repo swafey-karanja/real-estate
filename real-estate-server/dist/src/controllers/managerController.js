@@ -79,25 +79,27 @@ const getManagerProperties = (req, res) => __awaiter(void 0, void 0, void 0, fun
         const { cognitoId } = req.params;
         const properties = yield prisma.property.findMany({
             where: { managerCognitoId: cognitoId },
-            include: { location: true },
+            include: {
+                location: true,
+            },
         });
         const propertiesWithFormattedLocation = yield Promise.all(properties.map((property) => __awaiter(void 0, void 0, void 0, function* () {
             var _a;
-            const coordinates = yield prisma.$queryRaw `
-                SELECT ST_AsText(location.coordinates) as coordinates from "Location" where id = ${property.location.id}`;
+            const coordinates = yield prisma.$queryRaw `SELECT ST_asText(coordinates) as coordinates from "Location" where id = ${property.location.id}`;
             const geoJSON = (0, wkt_1.wktToGeoJSON)(((_a = coordinates[0]) === null || _a === void 0 ? void 0 : _a.coordinates) || "");
             const longitude = geoJSON.coordinates[0];
             const latitude = geoJSON.coordinates[1];
-            return Object.assign(Object.assign({}, property), { location: Object.assign(Object.assign({}, property.location), { coordinates: { latitude, longitude } }) });
+            return Object.assign(Object.assign({}, property), { location: Object.assign(Object.assign({}, property.location), { coordinates: {
+                        longitude,
+                        latitude,
+                    } }) });
         })));
         res.json(propertiesWithFormattedLocation);
     }
-    catch (error) {
+    catch (err) {
         res
             .status(500)
-            .json({
-            message: `Error retrieving manager properties: ${error.message}`,
-        });
+            .json({ message: `Error retrieving manager properties: ${err.message}` });
     }
 });
 exports.getManagerProperties = getManagerProperties;

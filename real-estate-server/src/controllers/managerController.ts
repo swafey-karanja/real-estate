@@ -79,16 +79,17 @@ export const getManagerProperties = async (
 ): Promise<void> => {
   try {
     const { cognitoId } = req.params;
-
     const properties = await prisma.property.findMany({
       where: { managerCognitoId: cognitoId },
-      include: { location: true },
+      include: {
+        location: true,
+      },
     });
 
     const propertiesWithFormattedLocation = await Promise.all(
       properties.map(async (property) => {
-        const coordinates: { coordinates: string }[] = await prisma.$queryRaw`
-                SELECT ST_AsText(location.coordinates) as coordinates from "Location" where id = ${property.location.id}`;
+        const coordinates: { coordinates: string }[] =
+          await prisma.$queryRaw`SELECT ST_asText(coordinates) as coordinates from "Location" where id = ${property.location.id}`;
 
         const geoJSON: any = wktToGeoJSON(coordinates[0]?.coordinates || "");
         const longitude = geoJSON.coordinates[0];
@@ -98,18 +99,19 @@ export const getManagerProperties = async (
           ...property,
           location: {
             ...property.location,
-            coordinates: { latitude, longitude },
+            coordinates: {
+              longitude,
+              latitude,
+            },
           },
         };
       })
     );
 
     res.json(propertiesWithFormattedLocation);
-  } catch (error: any) {
+  } catch (err: any) {
     res
       .status(500)
-      .json({
-        message: `Error retrieving manager properties: ${error.message}`,
-      });
+      .json({ message: `Error retrieving manager properties: ${err.message}` });
   }
 };
